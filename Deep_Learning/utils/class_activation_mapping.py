@@ -18,6 +18,7 @@ from tensorflow import keras
 from tensorflow.keras import backend as K
 import scipy 
 import matplotlib.pyplot as plt
+from PIL import Image
 
 def get_class_activation_map(model, img, name_final_conv_layer):
     ''' 
@@ -84,7 +85,7 @@ def plot_class_activation_map(CAM, img, label, figsize=(8, 8)):
     fig = plt.figure(figsize=figsize)
 
     # plot image
-    plt.imshow(img, alpha=0.5)
+    plt.imshow(img, alpha=0.5, cmap='gray')
     
     # plot class activation map
     plt.imshow(CAM, cmap='jet', alpha=0.5)
@@ -94,7 +95,7 @@ def plot_class_activation_map(CAM, img, label, figsize=(8, 8)):
 
     plt.show()
 
-def compute_and_plot_CAM(model, img, labels_list, name_final_conv_layer, figsize=(8, 8)):
+def compute_and_plot_CAM(model, img, labels_list, name_final_conv_layer, input_rgb=True, figsize=(8, 8)):
     '''
     This function takes a trained tensorflow model and an image and plots the resulting class activation map.
 
@@ -104,6 +105,7 @@ def compute_and_plot_CAM(model, img, labels_list, name_final_conv_layer, figsize
         labels_list (list of strings): List of labels or None if label should not be plotted
         name_final_conv_layer (string): The name of the final convolution layer, 
                                         which is the layer before the values go to the global average pooling layer
+        input_rgb (boolean): Flag to indicate whether the input image is an RGB image -> should be converted to grayscale for plotting the CAM                                        
         figsize (tuple of floats): Figure width and height
         '''
 
@@ -116,4 +118,7 @@ def compute_and_plot_CAM(model, img, labels_list, name_final_conv_layer, figsize
     else:
         label = "None"
 
+    # convert image to grayscale if it is RGB
+    if(input_rgb):
+        img = np.asarray(Image.fromarray((img  * 255).astype(np.uint8)).convert("L"))
     plot_class_activation_map(cam, img, label, figsize=figsize)
